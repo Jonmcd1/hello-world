@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style>
+            #circleGrid {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                border-collapse: collapse;
+                margin-bottom: 100px;
+            }
+            .circleBox {
+                width: 25px;
+                min-width: 25px;
+                height: 25px;
+                background-color: white;
+                border: 1px black solid;
+                padding: 0px;
+                box-sizing: border-box;
+            }
+
+            #perimeter {
+                position: absolute;
+                border: 1px black solid;
+                box-sizing: border-box;
+                border-radius: 100%;
+            }
+
+            #enterValue {
+                z-index: 10;
+                position: fixed;
+                left: 30%;
+                width: 40%;
+                top: 300px;
+                height: 200px;
+                border: 5px black solid;
+                background-color: white;
+            }
+            #enterHeader {
+                position: relative;
+                margin: 0px;
+                text-align: center;
+                top: 10px;
+                font-size: 48px;
+            }
+            #radiusInput {
+                position: relative;
+                text-align: center;
+                left: 40%;
+                width: 20%;
+                top: 10px;
+            }
+            #centerType {
+                position: relative;
+                text-align: center;
+                left: 40%;
+                width: 20%;
+                top: 30px;
+            }
+            #enterButton {
+                position: relative;
+                text-align: center;
+                left: 40%;
+                width: 20%;
+                top: 50px;
+                border: 3px black solid;
+                background-color: lime;
+                font-weight: bold;
+            }
+        </style>
+
+
+
+    </head>
+    <body>
+
+        <table id="circleGrid"></table>
+        <div id="enterValue">
+            <h1 id="enterHeader">Enter Radius</h1>
+            <input type="text" id="radiusInput"><br>
+            <select id="centerType" class="inputs">
+                <option value="1">Corner</option>
+                <option value="0">Midblock</option>
+            </select>
+            <div id="enterButton">Enter</div>
+        </div>
+
+
+
+        <script>
+            var enterButton = document.getElementById("enterButton");
+
+            /***** User Interaction, make the circle *****/
+            var createCircle = function() {
+                var circleGrid = document.getElementById("circleGrid");
+                var circleArray = [];
+                var radiusInput = document.getElementById("radiusInput");
+
+                var centerType = parseInt(document.getElementById("centerType").value);
+
+                var radiusByCell = Math.floor(parseFloat(radiusInput.value));
+                var radius = 25 * parseFloat(radiusInput.value) - 12.5 * centerType;
+                var graphSideLength = Math.ceil(2 * radiusByCell + 2);
+
+                var enterValue = document.getElementById("enterValue");
+                enterValue.style.display = "none";
+
+                
+                for (var i = 0; i < (graphSideLength + 1 - centerType); i++) {
+                    var newCircleRow = document.createElement("tr");
+                    newCircleRow.id = "row" + i;
+                    circleGrid.appendChild(newCircleRow);
+                    circleArray.push([]);
+
+                    for (var j = 0; j < (graphSideLength + 1 - centerType); j++) {
+                        var newCircleBox = document.createElement("td");
+                        newCircleBox.id = "boxR" + i + "C" + j;
+                        newCircleBox.className = "circleBox";
+                        newCircleRow.appendChild(newCircleBox);
+                        circleArray[i].push(newCircleBox);
+                    }
+                }
+
+
+                circleCenterX = circleArray[radiusByCell][radiusByCell].offsetLeft + 37.5 - 12.5 * centerType;
+                circleCenterY = circleArray[radiusByCell][radiusByCell].offsetTop + 37.5 - 12.5 * centerType;
+
+
+                var circlePerimeter = document.createElement("div");
+                circlePerimeter.id = "perimeter";
+                circlePerimeter.style.left = circleCenterX - radius + "px";
+                circlePerimeter.style.top = circleCenterY - radius + "px";
+                circlePerimeter.style.width = 2 * radius + "px";
+                circlePerimeter.style.height = 2 * radius + "px";
+                document.body.appendChild(circlePerimeter);
+        
+                for (var i = 0; i < (graphSideLength + 1 - centerType); i++) {
+                    for (var j = 0; j < (graphSideLength + 1 - centerType); j++) {
+                        var farDistance = [null, null];
+                        var closeDistance = [null, null];
+                        var currentBox = circleArray[i][j]
+                        
+                        if (Math.abs(currentBox.offsetLeft - circleCenterX) > Math.abs(currentBox.offsetLeft + 25 - circleCenterX)) {
+                            farDistance[0] = Math.abs(currentBox.offsetLeft - circleCenterX);
+                            closeDistance[0] = Math.abs(currentBox.offsetLeft + 25 - circleCenterX);
+                        } else {
+                            farDistance[0] = Math.abs(currentBox.offsetLeft + 25 - circleCenterX);
+                            closeDistance[0] = Math.abs(currentBox.offsetLeft - circleCenterX);
+                        }
+
+                        if (Math.abs(currentBox.offsetTop - circleCenterY) > Math.abs(currentBox.offsetTop + 25 - circleCenterY)) {
+                            farDistance[1] = Math.abs(currentBox.offsetTop - circleCenterY);
+                            closeDistance[1] = Math.abs(currentBox.offsetTop + 25 - circleCenterY);
+                        } else {
+                            farDistance[1] = Math.abs(currentBox.offsetTop + 25 - circleCenterY);
+                            closeDistance[1] = Math.abs(currentBox.offsetTop - circleCenterY);
+                        }
+
+                        if (((farDistance[0]**2 + farDistance[1]**2) > radius**2) && ((closeDistance[0]**2 + closeDistance[1]**2) < radius**2)) {
+                            currentBox.style.backgroundColor = "red";
+                        }
+
+                        if (i == radiusByCell + 1 || j == radiusByCell + 1) {
+                            currentBox.style.backgroundColor = "lime";
+                        }
+                        if ((i == radiusByCell || j == radiusByCell) && centerType == 1) {
+                            currentBox.style.backgroundColor = "lime";
+                        }
+                    }
+                }
+            }
+            enterButton.addEventListener("click", createCircle);
+
+        </script>
+    </body>
+</html>
